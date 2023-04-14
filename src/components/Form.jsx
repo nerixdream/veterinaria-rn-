@@ -13,6 +13,8 @@ import {
 
 // Picker
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+// Storage
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Components
 import { Header } from './Header';
@@ -57,7 +59,7 @@ export const Form = ({ modalForm, setModalForm, pacientes, setPacientes, pacient
         }
     }, [paciente]);
 
-    const handleAgendar = () => {
+    const handleAgendar = async () => {
         if ([nombrePaciente, raza, propietario, telefono, sintomas].includes('')) {
             Alert.alert('Error', 'Todos los campos son obligatorios');
             return;
@@ -78,10 +80,21 @@ export const Form = ({ modalForm, setModalForm, pacientes, setPacientes, pacient
             const citas = pacientes.map(item => (item.id === paciente.id ? nuevoPaciente : item));
             setPacientes(citas);
             setPaciente({});
+            try {
+                await AsyncStorage.setItem('citasVeterinaria', JSON.stringify(citas));
+            } catch (error) {
+                console.log({ error });
+            }
         } else {
             // Registro nuevo
             nuevoPaciente.id = Date.now();
-            setPacientes([...pacientes, nuevoPaciente]);
+            const newPacientes = [...pacientes, nuevoPaciente];
+            setPacientes(newPacientes);
+            try {
+                await AsyncStorage.setItem('citasVeterinaria', JSON.stringify(newPacientes));
+            } catch (error) {
+                console.log({ error });
+            }
         }
 
         setModalForm(false);

@@ -7,18 +7,14 @@ import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 
 // Componentes
-import { Header } from './src/components/Header';
-import { Button } from './src/components/Button';
-import { NoCitas } from './src/components/NoCitas';
-import { Card } from './src/components/Card';
-import { Form } from './src/components/Form';
-import { Details } from './src/components/Details';
+import { Header, Button, NoCitas, Card, Form, Details } from './src/components';
 
 // Estilos globales
 import { globalStyles } from './src/styles/globalStyles';
 
 // Colores
 import colores from './src/utils/colores';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function App() {
     const [modalForm, setModalForm] = useState(false);
@@ -42,6 +38,14 @@ export default function App() {
     }, []);
 
     useEffect(() => {
+        const obtenerCitasAsyncStorage = async () => {
+            const citas = (await AsyncStorage.getItem('citasVeterinaria')) || [];
+            setPacientes(JSON.parse(citas));
+        };
+        obtenerCitasAsyncStorage();
+    }, []);
+
+    useEffect(() => {
         const pacientesOrdenados = pacientes.sort((a, b) => {
             return new Date(a.fecha).getTime() > new Date(b.fecha).getTime();
         });
@@ -57,9 +61,14 @@ export default function App() {
     if (!fontsLoaded) return null;
 
     // Elimina una cita
-    const eliminarCita = id => {
+    const eliminarCita = async id => {
         const nuevosPacientes = pacientes.filter(citas => citas.id !== id);
         setPacientes(nuevosPacientes);
+        try {
+            await AsyncStorage.setItem('citasVeterinaria', JSON.stringify(nuevosPacientes));
+        } catch (error) {
+            console.log({ error });
+        }
     };
 
     const editarCita = id => {

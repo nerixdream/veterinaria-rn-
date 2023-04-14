@@ -55,7 +55,7 @@ export const Card = ({
                     <Icon name="create" size={28} color={colores.primary} />
                 </TouchableOpacity>
 
-                <TouchableOpacity onLongPress={handleEliminar}>
+                <TouchableOpacity onPress={handleEliminar}>
                     <Icon name="trash" size={28} color={colores.danger} />
                 </TouchableOpacity>
 
